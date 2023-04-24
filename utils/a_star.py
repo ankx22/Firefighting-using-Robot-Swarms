@@ -17,7 +17,7 @@ class AStarPlanner:
         if type(file) == str:
             self.map_array = load_map(file)
             self.obstacle_map = self.map_array.astype(np.int32).tolist()
-        else:
+        else: 
             self.map_array = file
             self.obstacle_map = file.astype(np.int32).tolist()
         
@@ -268,7 +268,6 @@ def main(file, start, goal, show_animation = False, show_path = False, collision
         plt.axis("equal")
         plt.show()
     # print('start:',start,' goal:',goal)
-    # print(path)
     if node_count:
         return path, a_star.nodecount
     else:
