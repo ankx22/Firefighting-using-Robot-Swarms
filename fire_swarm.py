@@ -17,38 +17,96 @@ class Fire_Swarm:
         self.obstacle_density = desired_density
         self.number_of_robots = N_robots
         self.steps_before_new_cells = 1
+        self.time_steps = 0
 
-        self.space,_,_ = obstacle_field_gen.main(self.length,self.width,self.obstacle_density,borders = True)
+        self.space,_,_ = obstacle_field_gen.main(self.length,self.width,self.obstacle_density,borders = True)   # consists of 1 = blank and 0 = obstacles
+        self.simulated_space = self.space   # contains information about fires and reservoir
+        self.simulated_space[:3,:3] = 10    # 2 = reservoir, 11 to inf = fire
 
-        self.robot_positions = self.valid_points()                # random test case
-        self.goal_positions = self.valid_points()
+        self.robot_positions = self.valid_points(self.number_of_robots)                # random test case
+        self.goal_positions = self.valid_points(self.number_of_robots)
 
-        self.segmented_space = self.space
-        self.past_positions = []
-        self.deadlocked_robots = []
-        self.deadlock_threshhold = 10
-        self.nodecount = 0
+        self.fires = []
+        self.detected_fires = []
 
-        self.reached = [int(self.robot_positions[robot] == self.goal_positions[robot]) for robot in range(self.number_of_robots) ]
-        self.success = 0
+        self.fire_detection_radius = 10
+        self.fire_figting_radius = 2
+        self.buckets_per_fire = 3
+        self.time_steps_before_ash = 60
+        
 
-        # self.vanilla_collisions = 0
-        # self.collisons_per_step = 0
-        # for i in range(self.number_of_robots):
-        #     self.vanilla_collisions += obstacles_on_line(self.robot_positions[i],self.goal_positions[i],self.space)
-        #     self.collisons_per_step += obstacles_on_line(self.robot_positions[i],self.goal_positions[i],self.space)/max(1,euclidian_dist(self.robot_positions[i],self.goal_positions[i]))
-        # print('\n',self.vanilla_collisions)
-
-
-    def valid_points(self,n=2):
+    def valid_points(self,n=1):
         ''' returns a list of lists where there are no obstacles, [[x1,y1],[x2,y2],[x3,y3]....] '''
         points = []
-        for robot in range(self.number_of_robots):
+        for robot in range(n):
             i,j = np.random.randint(self.length),np.random.randint(self.width)
             while self.space[i,j] != 1:
                 i,j = np.random.randint(self.length),np.random.randint(self.width)
-            if n == 3:
-                points.append([i,j,np.random.randint(0,360)])
-            else:
-                points.append([i,j])
-        return points
+        if n==1:
+            return [i,j]
+        else:
+            points.append([i,j])
+            return points
+        
+
+    def generate_paths(self):
+        self.assign_goal()
+        self.paths = []
+        for robot_id in range(self.number_of_robots):
+            path = a_star.main(self.space,self.robot_positions[robot_id],self.goal_positions[robot_id], 
+                            collisions = [self.robot_positions[:robot_id],self.robot_positions[robot_id+1:]])
+            
+            if path is None:        # if path is not foung, stay at current location
+                path = [self.robot_positions[robot_id],self.robot_positions[robot_id]]
+            self.paths.append(path)
+
+
+    def start_fire(self):
+        i,j = np.random.randint(self.length),np.random.randint(self.width)
+        while self.simulated_space[i,j] != 0:
+            i,j = np.random.randint(self.length),np.random.randint(self.width)
+        print('Fire Started at ',[i,j])
+        self.simulated_space[i,j] = 10 + self.buckets_per_fire
+        self.fires.append([i,j])
+
+
+    def detect_fire(self):
+        for robot_id in range(self.number_of_robots):
+            [x,y] = self.robot_positions[robot_id]
+            observed_area = self.space[x-self.fire_detection_radius:x+self.fire_detection_radius+1,y-self.fire_detection_radius:y+self.fire_detection_radius+1]
+            f = np.where(observed_area>10)
+            fires = list(zip(f[0],f[1]))
+            if type(fires[0])==list:
+                for fire in fires:
+                    self.detected_fires.append(fire)
+                    print('Fire detected at ',fire)
+            elif type(fires)==list:
+                self.detected_fires.append(fires)
+                print('Fire detected at, ',fires)
+
+
+    def assign_goal(self,robot_id):
+        if len(self.detected_fires>0):
+            closest = np.inf
+            for fire in self.detected_fires:
+                d = euclidian_dist(self.robot_positions[robot_id],fire)
+                if d < closest:
+                    closest = d
+                    temp_goal = fire
+            self.goal_positions[robot_id] = temp_goal
+        elif self.robot_positions[robot_id] == self.goal_positions[robot_id]:
+            self.goal_positions[robot_id] = self.valid_points()
+
+
+    def move(self):
+        for robot_id in range(self.number_of_robots):
+            self.robot_positions = self.paths[robot_id][1]
+
+
+    def step(self):
+        self.time_steps += 1
+        self.move()
+        self.detect_fire()
+        self.generate_paths()
+
+FS = Fire_Swarm(4,[50,50],10)

@@ -58,7 +58,8 @@ class AStarPlanner:
 
         while 1:
             if len(open_set) == 0:
-                print("A* Path not found :(")
+                # print("A* Path not found :(")
+                return None
                 break
 
             c_id = min(open_set,
@@ -258,23 +259,24 @@ def main(file, start, goal, show_animation = False, show_path = False, collision
         plt.axis("equal")
     
     path = a_star.planning(start, goal, show_animation)
-
-    if show_path: 
-        plt.title("A*")
-        plt.plot(a_star.ox, a_star.oy, ".k")
-        plt.plot(start[0], start[1], "om")
-        plt.plot(goal[0], goal[1], "xm")
-        plt.plot(path[:,0], path[:,1], "-m")
-        plt.axis("equal")
-        plt.show()
-    # print('start:',start,' goal:',goal)
-    if node_count:
-        return path, a_star.nodecount
-    else:
-        return path
+    
+    if path is not None:
+        if show_path: 
+            plt.title("A*")
+            plt.plot(a_star.ox, a_star.oy, ".k")
+            plt.plot(start[0], start[1], "om")
+            plt.plot(goal[0], goal[1], "xm")
+            plt.plot(path[:,0], path[:,1], "-m")
+            plt.axis("equal")
+            plt.show()
+        # print('start:',start,' goal:',goal)
+        if node_count:
+            return path, a_star.nodecount
+        else:
+            return path
 
 
 if __name__ == '__main__':
-    start = [2,0,1]
-    goal = [10,10,2]
+    start = [2,0]
+    goal = [100,100]
     main('map10.npy', start, goal, show_path = True, show_animation = False, collisions = [[[6,4],[6,3],[6,2],[6,1],[6,0]]])

@@ -80,3 +80,4 @@ if __name__ == '__main__':
     length,width = 128,128
     des_den = 20
     main(length,width,des_den,show_obstacle_field=True,borders=True)
+
