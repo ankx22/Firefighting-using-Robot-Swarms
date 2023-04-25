@@ -31,9 +31,9 @@ class Environment:
         [self.map_width,self.map_height] = self.environment.shape
         self.scaling_factor = 700//self.map_height
 
-    def draw_env(self,paths = [], positions = [], goals = []):
+    def draw_env(self,FS):
         path_points = []
-        for path in paths:
+        for path in FS.paths:
             for point in path[1:]:
                 path_points.append([round(point[0]),round(point[1])])
         count = 0
@@ -55,10 +55,12 @@ class Environment:
                     color = extract_colors(['yellow'])
                 elif self.environment[i,j] > 10:   # Fire
                     color = extract_colors(['orange'])
-                if [i,j] in positions:
-                    color = extract_colors(['red'])
-                # if [i,j] in goals:
-                #     color = extract_colors(['purple'])
+                if [i,j] in FS.robot_positions:
+                    index = FS.robot_positions.index([i,j])
+                    if FS.water[index]:
+                        color = extract_colors(['red'])
+                    elif not FS.water[index]:
+                        color = extract_colors(['darkred'])
                 pygame.draw.rect(self.surface, color, pygame.Rect(j*self.scaling_factor,(i)*self.scaling_factor,self.scaling_factor,self.scaling_factor))
         pygame.display.update()
 
@@ -75,7 +77,7 @@ while running:
     
     FS.step()
 
-    env.draw_env(FS.paths,FS.robot_positions,FS.goal_positions)
+    env.draw_env(FS)
     pygame.display.update()
 
     # pygame.time.delay(100)
