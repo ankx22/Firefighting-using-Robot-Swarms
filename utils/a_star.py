@@ -58,7 +58,7 @@ class AStarPlanner:
 
         while 1:
             if len(open_set) == 0:
-                # print("A* Path not found :(")
+                print("A* Path not found")
                 return None
                 break
 
@@ -79,8 +79,12 @@ class AStarPlanner:
                 if len(closed_set.keys()) % 10 == 0:
                     plt.pause(0.001)
 
-            if current.x == goal_node.x and current.y == goal_node.y:
-                # print("Found goal!")
+            # if current.x == goal_node.x and current.y == goal_node.y:
+            #     print("Found goal!")
+            #     goal_node.parent_index = current.parent_index
+            #     goal_node.cost = current.cost
+            #     break
+            if ((current.x-goal_node.x)**2+(current.y-goal_node.y)**2)**0.5 <= 2:
                 goal_node.parent_index = current.parent_index
                 goal_node.cost = current.cost
                 break
@@ -127,8 +131,9 @@ class AStarPlanner:
             rx.append(self.calc_grid_position(n.x, self.min_x))
             ry.append(self.calc_grid_position(n.y, self.min_y))
             parent_index = n.parent_index
-        rx_s2g = np.flip(rx)
-        ry_s2g = np.flip(ry)
+
+        rx_s2g = np.flip(rx[1:])
+        ry_s2g = np.flip(ry[1:])
         return rx_s2g, ry_s2g
 
     @staticmethod
@@ -270,6 +275,7 @@ def main(file, start, goal, show_animation = False, show_path = False, collision
             plt.axis("equal")
             plt.show()
         # print('start:',start,' goal:',goal)
+        # print(path)
         if node_count:
             return path, a_star.nodecount
         else:
@@ -278,5 +284,5 @@ def main(file, start, goal, show_animation = False, show_path = False, collision
 
 if __name__ == '__main__':
     start = [2,0]
-    goal = [100,100]
+    goal = [10,10]
     main('map10.npy', start, goal, show_path = True, show_animation = False, collisions = [[[6,4],[6,3],[6,2],[6,1],[6,0]]])
