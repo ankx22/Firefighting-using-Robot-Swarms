@@ -22,8 +22,12 @@ class Fire_Swarm:
         self.space,_,_ = obstacle_field_gen.main(self.length,self.width,self.obstacle_density,borders = False)   # consists of 1 = blank and 0 = obstacles
         self.simulated_space = self.space  # contains information about fires and reservoir
         self.forest = self.space.copy()
-        self.simulated_space[:5,:5] = 2    # 2 = reservoir, 3 = ash, 11 to inf = fire
-        self.simulated_space[self.length-5:,self.width-5:] = 2
+
+        self.res1 = self.valid_points()
+        self.res2 = self.valid_points()
+        print('R Reservoirs are at',self.res1,self.res2)
+        self.simulated_space[self.res1[0]-1:self.res1[0]+2,self.res1[1]-1:self.res1[1]+2] = 2    # 2 = reservoir, 3 = ash, 11 to inf = fire
+        self.simulated_space[self.res2[0]-1:self.res2[0]+2,self.res2[1]-1:self.res2[1]+2] = 2
 
         self.robot_positions = self.valid_points(self.number_of_robots)                # random test case
         self.goal_positions = self.valid_points(self.number_of_robots)
@@ -186,10 +190,10 @@ class Fire_Swarm:
 
     def assign_goal(self,robot_id):
         if self.water[robot_id] is not True:
-            if euclidian_dist(self.robot_positions[robot_id],[2,2]) < euclidian_dist(self.robot_positions[robot_id],[self.length-2,self.width-2]):
-                self.goal_positions[robot_id] = [2,2]
+            if euclidian_dist(self.robot_positions[robot_id],self.res1) < euclidian_dist(self.robot_positions[robot_id],self.res2):
+                self.goal_positions[robot_id] = self.res1
             else:
-                self.goal_positions[robot_id] = [self.length-2,self.width-2]
+                self.goal_positions[robot_id] = self.res2
 
         elif len(self.detected_fires)>0:
             closest = np.inf
@@ -218,5 +222,5 @@ class Fire_Swarm:
         
 
 
-FS = Fire_Swarm(4,[50,50],10)
-FS.step()
+# FS = Fire_Swarm(4,[50,50],10)
+# FS.step()
