@@ -31,13 +31,13 @@ class Fire_Swarm:
         self.detected_fires = []
 
         self.refill_radius = 3
-        self.fire_detection_radius = 20
+        self.fire_detection_radius = 5
         self.fire_fighting_radius = 3
         self.fire_spread_radius = 3
         self.buckets_per_fire = 3
         self.time_steps_before_ash = 60
-        self.time_steps_before_spread = 45
-        self.time_steps_for_new_fire = 10
+        self.time_steps_before_spread = 40
+        self.time_steps_for_new_fire = 20
 
 
     def valid_points(self,n=1):
@@ -61,15 +61,19 @@ class Fire_Swarm:
         self.next_steps = []
         for robot_id in range(self.number_of_robots):
             self.assign_goal(robot_id)
+            conflicts = [self.robot_positions,self.next_steps]
+            # print(conflicts)
             path = a_star.main(self.space,self.robot_positions[robot_id],self.goal_positions[robot_id], 
-                            collisions = [self.robot_positions[:robot_id],self.robot_positions[robot_id+1:],self.next_steps])
-            
+                            collisions = [self.robot_positions,self.next_steps])
             if path is None or len(path)<2:        # if path is not found, stay at current location
-                path = [self.robot_positions[robot_id],self.robot_positions[robot_id]]
+                path = np.array([self.robot_positions[robot_id],self.robot_positions[robot_id]])
             
             self.paths.append(path)
-            self.next_steps.append([path[1][0],path[1][0]])
-
+            try:
+                self.next_steps.append([path[1][0],path[1][1]])
+            except:
+                print('Path:',path)
+        # print(self.next_steps)
 
     def start_fire(self):
         i,j = np.random.randint(self.length),np.random.randint(self.width)
@@ -143,7 +147,8 @@ class Fire_Swarm:
             if self.simulated_space[fire[0],fire[1]] == 10:
                 print('Y Fire Extinguished at ', [fire[0],fire[1]],'!')
                 self.simulated_space[fire[0],fire[1]] = 0  # becomes a normal obstacle again
-                self.detected_fires.remove([fire[0],fire[1]])
+                if [fire[0],fire[1]] in self.detected_fires:
+                    self.detected_fires.remove([fire[0],fire[1]])
                 self.fires.remove(fire)
 
                 if len(self.detected_fires) == 0:
@@ -155,6 +160,9 @@ class Fire_Swarm:
             if fire[2] >= self.time_steps_before_ash:
                 print('X Burned to ash at ', [fire[0],fire[1]])
                 self.simulated_space[fire[0],fire[1]] = 3   # turns to ash
+                if [fire[0],fire[1]] in self.detected_fires:
+                    self.detected_fires.remove([fire[0],fire[1]])
+                self.fires.remove(fire)
 
         self.spread_fire()
 
@@ -167,6 +175,10 @@ class Fire_Swarm:
 
             # fill water
             self.replenish_water(robot_id)
+
+            # check for collisions
+            if (self.robot_positions[robot_id] in self.robot_positions[:robot_id]) or (self.robot_positions[robot_id] in self.robot_positions[robot_id+1:]):
+                print('? Collision')
 
 
     def assign_goal(self,robot_id):
@@ -182,7 +194,7 @@ class Fire_Swarm:
                     temp_goal = fire
             self.goal_positions[robot_id] = temp_goal
 
-        elif euclidian_dist(self.robot_positions[robot_id],self.goal_positions[robot_id])<3:
+        elif euclidian_dist(self.robot_positions[robot_id],self.goal_positions[robot_id])<=3:
             self.goal_positions[robot_id] = self.valid_points()
 
 
@@ -201,4 +213,4 @@ class Fire_Swarm:
 
 
 FS = Fire_Swarm(4,[50,50],10)
-# print(FS.valid_points(3))
+FS.step()

@@ -41,10 +41,12 @@ class Environment:
         self.surface.fill(extract_colors(['white']))
         for i in range(self.environment.shape[0]):
             for j in range(self.environment.shape[1]):
-                if self.environment[i,j] == 0:      # Tree
-                    color = extract_colors(['forestgreen'])
-                elif self.environment[i,j] == 1:    # Ground
+                if self.environment[i,j] == 1:    # Ground
                     color = extract_colors(['gray80'])
+                if [i,j] in path_points:
+                    color = extract_colors(['gray85'])    
+                elif self.environment[i,j] == 0:      # Tree
+                    color = extract_colors(['forestgreen'])
                 elif self.environment[i,j] == 2:    # Reservoir
                     color = extract_colors(['darkblue'])
                 elif self.environment[i,j] == 3:    # Ash
@@ -53,8 +55,6 @@ class Environment:
                     color = extract_colors(['yellow'])
                 elif self.environment[i,j] > 10:   # Fire
                     color = extract_colors(['orange'])
-                if [i,j] in path_points:
-                    color = extract_colors(['gray85'])
                 if [i,j] in positions:
                     color = extract_colors(['red'])
                 # if [i,j] in goals:
@@ -63,7 +63,7 @@ class Environment:
         pygame.display.update()
 
 
-FS = fire_swarm.Fire_Swarm(30,[50,50],10)
+FS = fire_swarm.Fire_Swarm(10,[50,50],10)
 env = Environment(FS.simulated_space)
 running = True
 

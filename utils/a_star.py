@@ -220,21 +220,20 @@ def load_map(file_name):
         return map_array
 
 
+def flatten_list(nested_list):
+    flat_list = []
+    for item in nested_list:
+        if isinstance(item, list):
+            flat_list.extend(flatten_list(item))
+        else:
+            flat_list.append(item)
+    return flat_list
+
+
 def collisions_calc(collisions):
-    collisions_augmented = []
     if collisions != None:
-        for list_1 in collisions:
-            if type(list_1) == list:
-                for list_2 in list_1:
-                    if type(list_2) == list:
-                        for element in list_2:
-                            if list_2 not in collisions_augmented:
-                                collisions_augmented.append(list_2)
-                    else:
-                        if list_1 not in collisions_augmented:
-                            collisions_augmented.append(list_1)
-            else:
-                collisions_augmented = collisions 
+        flat_list = flatten_list(collisions)
+    collisions_augmented = [[flat_list[i], flat_list[i+1]] for i in range(0, len(flat_list), 2)]
     return collisions_augmented
 
 
@@ -283,6 +282,6 @@ def main(file, start, goal, show_animation = False, show_path = False, collision
 
 
 if __name__ == '__main__':
-    start = [2,0]
+    start = [24,24]
     goal = [10,10]
-    main('map10.npy', start, goal, show_path = True, show_animation = False, collisions = [[[6,4],[6,3],[6,2],[6,1],[6,0]]])
+    main('map10.npy', start, goal, show_path = True, show_animation = False, collisions = [[6,4],[6,3],[6,2],[6,1],[6,0]])
