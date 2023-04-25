@@ -21,7 +21,8 @@ class Fire_Swarm:
         self.time_steps = 0
 
         self.space,_,_ = obstacle_field_gen.main(self.length,self.width,self.obstacle_density,borders = False)   # consists of 1 = blank and 0 = obstacles
-        self.simulated_space = self.space   # contains information about fires and reservoir
+        self.simulated_space = self.space  # contains information about fires and reservoir
+        self.forest = self.space.copy()
         self.simulated_space[:5,:5] = 2    # 2 = reservoir, 3 = ash, 11 to inf = fire
 
         self.robot_positions = self.valid_points(self.number_of_robots)                # random test case
@@ -32,11 +33,13 @@ class Fire_Swarm:
         self.detected_fires = []
 
         self.refill_radius = 3
-        self.fire_detection_radius = 5
+        self.fire_detection_radius = 10
         self.fire_fighting_radius = 3
         self.fire_spread_radius = 3
         self.buckets_per_fire = 3
         self.time_steps_before_ash = 60
+        self.time_steps_before_spread = 20
+        self.time_steps_for_new_fire = 10
         self.time_steps_before_spread = 50
         self.fire_spread_rate = 0.01
         self.time_steps_for_new_fire = 30
@@ -65,7 +68,7 @@ class Fire_Swarm:
             self.assign_goal(robot_id)
             conflicts = [self.robot_positions,self.next_steps]
             # print(conflicts)
-            path = a_star.main(self.space,self.robot_positions[robot_id],self.goal_positions[robot_id], 
+            path = a_star.main(self.forest,self.robot_positions[robot_id],self.goal_positions[robot_id],
                             collisions = [self.robot_positions,self.next_steps])
             if path is None or len(path)<2:        # if path is not found, stay at current location
                 path = np.array([self.robot_positions[robot_id],self.robot_positions[robot_id]])
