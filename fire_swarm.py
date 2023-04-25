@@ -24,16 +24,15 @@ class Fire_Swarm:
         self.simulated_space = self.space  # contains information about fires and reservoir
         self.forest = self.space.copy()
 
-        self.res1 = self.valid_points()
-        self.res2 = self.valid_points()
-        print('R Reservoirs are at',self.res1,self.res2)
-        self.simulated_space[self.res1[0]-1:self.res1[0]+2,self.res1[1]-1:self.res1[1]+2] = 2    # 2 = reservoir, 3 = ash, 11 to inf = fire
-        self.simulated_space[self.res2[0]-1:self.res2[0]+2,self.res2[1]-1:self.res2[1]+2] = 2
+        
 
         self.robot_positions = self.valid_points(self.number_of_robots)                # random test case
         self.goal_positions = self.valid_points(self.number_of_robots)
         self.water = [True for robot_id in range(self.number_of_robots)]
 
+        self.reservoirs = []
+        self.add_reservoirs()
+        
         self.fires = []
         self.detected_fires = []
 
@@ -63,6 +62,13 @@ class Fire_Swarm:
             return points
         
 
+    def add_reservoirs(self,number = 2):
+        for i in range(number):
+            res = self.valid_points()
+            self.simulated_space[res[0]-1:res[0]+2,res[1]-1:res[1]+2] = 2
+            self.reservoirs.append(res)
+
+
     def generate_paths(self):
         self.paths = []
         self.next_steps = []
@@ -81,6 +87,7 @@ class Fire_Swarm:
             except:
                 print('Path:',path)
         # print(self.next_steps)
+
 
     def start_fire(self):
         i,j = np.random.randint(self.length),np.random.randint(self.width)
@@ -196,11 +203,15 @@ class Fire_Swarm:
 
 
     def assign_goal(self,robot_id):
+
         if self.water[robot_id] is not True:
-            if euclidian_dist(self.robot_positions[robot_id],self.res1) < euclidian_dist(self.robot_positions[robot_id],self.res2):
-                self.goal_positions[robot_id] = self.res1
-            else:
-                self.goal_positions[robot_id] = self.res2
+            closest = np.inf
+            for reservoir in self.reservoirs:
+                d = euclidian_dist(self.robot_positions[robot_id],reservoir)
+                if d < closest:
+                    closest = d
+                    temp_goal = reservoir
+            self.goal_positions[robot_id] = temp_goal
 
         elif len(self.detected_fires)>0:
             closest = np.inf
