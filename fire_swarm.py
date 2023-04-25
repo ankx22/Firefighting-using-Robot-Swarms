@@ -5,6 +5,7 @@ sys.path.append("utils/")
 import a_star
 import obstacle_field_gen
 from matplotlib import pyplot as plt
+import random
 
 def euclidian_dist(p1,p2):
     dist = ( (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 ) ** 0.5
@@ -37,6 +38,7 @@ class Fire_Swarm:
         self.buckets_per_fire = 3
         self.time_steps_before_ash = 60
         self.time_steps_before_spread = 50
+        self.fire_spread_rate = 0.01
         self.time_steps_for_new_fire = 30
 
 
@@ -97,6 +99,27 @@ class Fire_Swarm:
                         self.fires.append([tree[0],tree[1],1])
                         self.simulated_space[tree[0],tree[1]] = 10 + self.buckets_per_fire
                 print('+ Fire Spreads at',[x,y])
+
+    def spread_fire2(self):
+        #Go through each of the fires
+        for fire in self.fires:
+            [x,y] = [fire[0],fire[1]]
+            surroundings = self.simulated_space[max(x - self.fire_spread_radius, 0):x + self.fire_spread_radius + 1,
+                           max(y - self.fire_spread_radius, 0):y + self.fire_spread_radius + 1]
+            space = np.where(surroundings == 0)
+            #Get the tress that are next to the fire
+            susceptible_trees = [list(point) for point in zip(space[0] + max(x - self.fire_spread_radius, 0),
+                                                              space[1] + max(y - self.fire_spread_radius, 0))]
+            #Iterate through the trees not on fire
+            for tree in susceptible_trees:
+                if tree not in self.fires:
+                    chance = random.random()
+                    #Set the tree on fire if it goes below the rate
+                    if chance < self.fire_spread_rate:
+                        self.fires.append([tree[0], tree[1], 1])
+                        self.simulated_space[tree[0], tree[1]] = 10 + self.buckets_per_fire
+
+
 
 
     def detect_fire(self,robot_id):
@@ -165,7 +188,7 @@ class Fire_Swarm:
                     self.detected_fires.remove([fire[0],fire[1]])
                 self.fires.remove(fire)
 
-        self.spread_fire()
+        self.spread_fire2()
 
         for robot_id in range(self.number_of_robots):
             # detect fire if nearby
