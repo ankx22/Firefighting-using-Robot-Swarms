@@ -23,6 +23,7 @@ class Fire_Swarm:
         self.simulated_space = self.space  # contains information about fires and reservoir
         self.forest = self.space.copy()
         self.simulated_space[:5,:5] = 2    # 2 = reservoir, 3 = ash, 11 to inf = fire
+        self.simulated_space[self.length-5:,self.width-5:] = 2
 
         self.robot_positions = self.valid_points(self.number_of_robots)                # random test case
         self.goal_positions = self.valid_points(self.number_of_robots)
@@ -185,7 +186,10 @@ class Fire_Swarm:
 
     def assign_goal(self,robot_id):
         if self.water[robot_id] is not True:
-            self.goal_positions[robot_id] = [2,2]
+            if euclidian_dist(self.robot_positions[robot_id],[2,2]) < euclidian_dist(self.robot_positions[robot_id],[self.length-2,self.width-2]):
+                self.goal_positions[robot_id] = [2,2]
+            else:
+                self.goal_positions[robot_id] = [self.length-2,self.width-2]
 
         elif len(self.detected_fires)>0:
             closest = np.inf
