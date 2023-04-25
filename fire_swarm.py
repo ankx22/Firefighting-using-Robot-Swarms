@@ -31,12 +31,12 @@ class Fire_Swarm:
         self.detected_fires = []
 
         self.refill_radius = 3
-        self.fire_detection_radius = 10
+        self.fire_detection_radius = 20
         self.fire_fighting_radius = 3
         self.fire_spread_radius = 3
-        self.buckets_per_fire = 1
+        self.buckets_per_fire = 3
         self.time_steps_before_ash = 60
-        self.time_steps_before_spread = 600
+        self.time_steps_before_spread = 45
         self.time_steps_for_new_fire = 10
 
 
@@ -90,7 +90,9 @@ class Fire_Swarm:
                                                                   space[1]+max(y-self.fire_spread_radius,0))]
                 for tree in susceptible_trees:
                     if tree not in self.fires:
-                        self.fires.append([tree[0],tree[1],0])
+                        self.fires.append([tree[0],tree[1],1])
+                        self.simulated_space[tree[0],tree[1]] = 10 + self.buckets_per_fire
+                print('+ Fire Spreads at',[x,y])
 
 
     def detect_fire(self,robot_id):
@@ -124,14 +126,16 @@ class Fire_Swarm:
     def replenish_water(self,robot_id):
         [x,y] = self.robot_positions[robot_id]
         check_area = self.space[max(x-self.refill_radius,0):x+self.refill_radius+1,max(y-self.refill_radius,0):y+self.refill_radius+1]
-        ref_space = np.where(check_area==2)
-        reservoir = [list(point) for point in zip(ref_space[0],ref_space[1])]
+        space = np.where(check_area==2)
+        reservoir = [list(point) for point in zip(space[0]+max(x-self.refill_radius,0),
+                                                  space[1]+max(y-self.refill_radius,0))]
         if len(reservoir) > 0 and self.water[robot_id] == False:
             self.water[robot_id] = True
             self.goal_positions[robot_id] = self.valid_points()
         
 
     def activity(self):
+        
         if self.time_steps%self.time_steps_for_new_fire == 0:
             self.start_fire()
             
@@ -139,9 +143,14 @@ class Fire_Swarm:
             if self.simulated_space[fire[0],fire[1]] == 10:
                 print('Y Fire Extinguished at ', [fire[0],fire[1]],'!')
                 self.simulated_space[fire[0],fire[1]] = 0  # becomes a normal obstacle again
+                self.detected_fires.remove([fire[0],fire[1]])
+                self.fires.remove(fire)
+
                 if len(self.detected_fires) == 0:
+                    print('* Reassinging Goals')
                     self.goal_positions = self.valid_points(self.number_of_robots)
                 continue
+            
             fire[2] += 1    # increment time that the tree has been burning
             if fire[2] >= self.time_steps_before_ash:
                 print('X Burned to ash at ', [fire[0],fire[1]])
@@ -163,6 +172,7 @@ class Fire_Swarm:
     def assign_goal(self,robot_id):
         if self.water[robot_id] is not True:
             self.goal_positions[robot_id] = [2,2]
+
         elif len(self.detected_fires)>0:
             closest = np.inf
             for fire in self.detected_fires:
@@ -171,7 +181,8 @@ class Fire_Swarm:
                     closest = d
                     temp_goal = fire
             self.goal_positions[robot_id] = temp_goal
-        if euclidian_dist(self.robot_positions[robot_id],self.goal_positions[robot_id])<4:
+
+        elif euclidian_dist(self.robot_positions[robot_id],self.goal_positions[robot_id])<3:
             self.goal_positions[robot_id] = self.valid_points()
 
 

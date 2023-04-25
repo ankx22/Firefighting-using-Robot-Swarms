@@ -84,7 +84,7 @@ class AStarPlanner:
             #     goal_node.parent_index = current.parent_index
             #     goal_node.cost = current.cost
             #     break
-            if ((current.x-goal_node.x)**2+(current.y-goal_node.y)**2)**0.5 <= 2:
+            if ((current.x-goal_node.x)**2+(current.y-goal_node.y)**2)**0.5 < 2:
                 goal_node.parent_index = current.parent_index
                 goal_node.cost = current.cost
                 break

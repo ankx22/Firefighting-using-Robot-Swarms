@@ -1,7 +1,11 @@
 import numpy as np
 
 # l = []
-arr = np.array([[5, 6, 7], [8, 9, 10], [11, 12, 13]])
+arr = [[5, 6, 7], [8, 9, 10], [11, 12, 13]]
+
+# arr = [a for a in arr if a != [8,9,10]]
+
+arr.remove([8,9,10])
 
 # indices = np.where(arr > 10)
 
@@ -25,8 +29,5 @@ arr = np.array([[5, 6, 7], [8, 9, 10], [11, 12, 13]])
 # r=2
 # print(A[max(x-r,0):x+r+1,max(y-r,0):y+r+1])
 
-A = 10
+print(arr)
 
-for i in range(3):
-    A-=1
-    print(A)

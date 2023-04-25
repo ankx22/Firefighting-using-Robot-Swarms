@@ -48,22 +48,22 @@ class Environment:
                 elif self.environment[i,j] == 2:    # Reservoir
                     color = extract_colors(['darkblue'])
                 elif self.environment[i,j] == 3:    # Ash
-                    color = extract_colors(['gray10'])
+                    color = extract_colors(['gray30'])
                 elif self.environment[i,j] == 10:   # ext
                     color = extract_colors(['yellow'])
                 elif self.environment[i,j] > 10:   # Fire
                     color = extract_colors(['orange'])
                 if [i,j] in path_points:
-                    color = extract_colors(['gray95'])
+                    color = extract_colors(['gray85'])
                 if [i,j] in positions:
                     color = extract_colors(['red'])
-                if [i,j] in goals:
-                    color = extract_colors(['green'])
+                # if [i,j] in goals:
+                #     color = extract_colors(['purple'])
                 pygame.draw.rect(self.surface, color, pygame.Rect(j*self.scaling_factor,(i)*self.scaling_factor,self.scaling_factor,self.scaling_factor))
         pygame.display.update()
 
 
-FS = fire_swarm.Fire_Swarm(5,[50,50],10)
+FS = fire_swarm.Fire_Swarm(30,[50,50],10)
 env = Environment(FS.simulated_space)
 running = True
 
@@ -76,4 +76,4 @@ while running:
     env.draw_env(FS.paths,FS.robot_positions,FS.goal_positions)
     pygame.display.update()
 
-    pygame.time.delay(200)
+    pygame.time.delay(100)
