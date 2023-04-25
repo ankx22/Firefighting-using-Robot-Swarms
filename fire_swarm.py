@@ -36,8 +36,8 @@ class Fire_Swarm:
         self.fire_spread_radius = 3
         self.buckets_per_fire = 3
         self.time_steps_before_ash = 60
-        self.time_steps_before_spread = 40
-        self.time_steps_for_new_fire = 20
+        self.time_steps_before_spread = 50
+        self.time_steps_for_new_fire = 30
 
 
     def valid_points(self,n=1):
@@ -147,6 +147,7 @@ class Fire_Swarm:
             if self.simulated_space[fire[0],fire[1]] == 10:
                 print('Y Fire Extinguished at ', [fire[0],fire[1]],'!')
                 self.simulated_space[fire[0],fire[1]] = 0  # becomes a normal obstacle again
+                self.space[fire[0],fire[1]] = 0
                 if [fire[0],fire[1]] in self.detected_fires:
                     self.detected_fires.remove([fire[0],fire[1]])
                 self.fires.remove(fire)
