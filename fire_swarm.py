@@ -16,7 +16,8 @@ class Fire_Swarm:
     def __init__(self, N_robots, dimensions, desired_density):
 
         self.f = open("fire_spread_output.csv", "w")
-        self.f.write("Timestep,num_fires,num_ash\n")
+        self.f.write("Timestep,num_fires,num_ash,num_extinguished,perc_w_water\n")
+        self.num_extinguished = 0
 
         self.length,self.width = dimensions
         self.obstacle_density = desired_density
@@ -137,6 +138,7 @@ class Fire_Swarm:
                                               space[1]+max(y-self.fire_fighting_radius,0))]
         if len(fires)>0 and self.water[robot_id]:
             self.simulated_space[fires[0][0],fires[0][1]] -= 1
+            self.num_extinguished += 1
             print('~ Water dropped at',[fires[0][0],fires[0][1]])
             self.water[robot_id] = False
             
@@ -231,7 +233,8 @@ class Fire_Swarm:
     def updateStats(self):
         num_fires = len(self.fires)
         num_ash = self.count_ash()
-        self.f.write("%d,%d,%d\n" % (self.time_steps, num_fires, num_ash))
+        perc_water = self.get_percentage_with_water()
+        self.f.write("%d,%d,%d,%d,%f\n" % (self.time_steps, num_fires, num_ash, self.num_extinguished, perc_water))
 
     def count_ash(self):
         unique, counts = np.unique(self.simulated_space, return_counts=True)
@@ -243,6 +246,10 @@ class Fire_Swarm:
         #If it doesn't exist then it is 0
         else:
             return 0
+
+    def get_percentage_with_water(self):
+        return self.water.count(True) / len(self.water)
+
 
 FS = Fire_Swarm(4,[50,50],10)
 FS.step()
