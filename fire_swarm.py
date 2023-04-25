@@ -28,13 +28,16 @@ class Fire_Swarm:
         self.space,_,_ = obstacle_field_gen.main(self.length,self.width,self.obstacle_density,borders = False)   # consists of 1 = blank and 0 = obstacles
         self.simulated_space = self.space  # contains information about fires and reservoir
         self.forest = self.space.copy()
-        self.simulated_space[:5,:5] = 2    # 2 = reservoir, 3 = ash, 11 to inf = fire
-        self.simulated_space[self.length-5:,self.width-5:] = 2
+
+        
 
         self.robot_positions = self.valid_points(self.number_of_robots)                # random test case
         self.goal_positions = self.valid_points(self.number_of_robots)
         self.water = [True for robot_id in range(self.number_of_robots)]
 
+        self.reservoirs = []
+        self.add_reservoirs()
+        
         self.fires = []
         self.detected_fires = []
 
@@ -64,6 +67,13 @@ class Fire_Swarm:
             return points
         
 
+    def add_reservoirs(self,number = 2):
+        for i in range(number):
+            res = self.valid_points()
+            self.simulated_space[res[0]-1:res[0]+2,res[1]-1:res[1]+2] = 2
+            self.reservoirs.append(res)
+
+
     def generate_paths(self):
         self.paths = []
         self.next_steps = []
@@ -71,7 +81,7 @@ class Fire_Swarm:
             self.assign_goal(robot_id)
             conflicts = [self.robot_positions,self.next_steps]
             # print(conflicts)
-            path = a_star.main(self.forest,self.robot_positions[robot_id],self.goal_positions[robot_id],
+            path = a_star.main(self.forest,self.robot_positions[robot_id],self.goal_positions[robot_id], 
                             collisions = [self.robot_positions,self.next_steps])
             if path is None or len(path)<2:        # if path is not found, stay at current location
                 path = np.array([self.robot_positions[robot_id],self.robot_positions[robot_id]])
@@ -83,6 +93,7 @@ class Fire_Swarm:
                 print('Path:',path)
         # print(self.next_steps)
 
+
     def start_fire(self):
         i,j = np.random.randint(self.length),np.random.randint(self.width)
         while self.simulated_space[i,j] != 0:
@@ -91,6 +102,7 @@ class Fire_Swarm:
         self.simulated_space[i,j] = 10 + self.buckets_per_fire
         self.fires.append([i,j,0])
 
+    
     def spread_fire(self):
         #Go through each of the fires
         for fire in self.fires:
@@ -110,8 +122,6 @@ class Fire_Swarm:
                         self.fires.append([tree[0], tree[1], 1])
                         self.simulated_space[tree[0], tree[1]] = 10 + self.buckets_per_fire
                         print('+  Fire Spread to ', [tree[0], tree[1]])
-
-
 
 
     def detect_fire(self,robot_id):
@@ -199,11 +209,15 @@ class Fire_Swarm:
 
 
     def assign_goal(self,robot_id):
+
         if self.water[robot_id] is not True:
-            if euclidian_dist(self.robot_positions[robot_id],[2,2]) < euclidian_dist(self.robot_positions[robot_id],[self.length-2,self.width-2]):
-                self.goal_positions[robot_id] = [2,2]
-            else:
-                self.goal_positions[robot_id] = [self.length-2,self.width-2]
+            closest = np.inf
+            for reservoir in self.reservoirs:
+                d = euclidian_dist(self.robot_positions[robot_id],reservoir)
+                if d < closest:
+                    closest = d
+                    temp_goal = reservoir
+            self.goal_positions[robot_id] = temp_goal
 
         elif len(self.detected_fires)>0:
             closest = np.inf
@@ -251,5 +265,5 @@ class Fire_Swarm:
         return self.water.count(True) / len(self.water)
 
 
-FS = Fire_Swarm(4,[50,50],10)
-FS.step()
+# FS = Fire_Swarm(4,[50,50],10)
+# FS.step()
