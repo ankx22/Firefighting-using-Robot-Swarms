@@ -5,6 +5,7 @@ sys.path.append("utils/")
 import a_star
 import obstacle_field_gen
 from matplotlib import pyplot as plt
+import random
 
 def euclidian_dist(p1,p2):
     dist = ( (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 ) ** 0.5
@@ -42,8 +43,8 @@ class Fire_Swarm:
         self.fire_spread_radius = 3
         self.buckets_per_fire = 3
         self.time_steps_before_ash = 60
-        self.time_steps_before_spread = 20
         self.time_steps_for_new_fire = 10
+        self.fire_spread_rate = 0.01
 
 
     def valid_points(self,n=1):
@@ -69,7 +70,7 @@ class Fire_Swarm:
             self.assign_goal(robot_id)
             conflicts = [self.robot_positions,self.next_steps]
             # print(conflicts)
-            path = a_star.main(self.forest,self.robot_positions[robot_id],self.goal_positions[robot_id], 
+            path = a_star.main(self.forest,self.robot_positions[robot_id],self.goal_positions[robot_id],
                             collisions = [self.robot_positions,self.next_steps])
             if path is None or len(path)<2:        # if path is not found, stay at current location
                 path = np.array([self.robot_positions[robot_id],self.robot_positions[robot_id]])
@@ -89,20 +90,27 @@ class Fire_Swarm:
         self.simulated_space[i,j] = 10 + self.buckets_per_fire
         self.fires.append([i,j,0])
 
-    
     def spread_fire(self):
+        #Go through each of the fires
         for fire in self.fires:
             [x,y] = [fire[0],fire[1]]
-            if fire[2] % self.time_steps_before_spread == 0:
-                surroundings = self.simulated_space[max(x-self.fire_spread_radius,0):x+self.fire_spread_radius+1,max(y-self.fire_spread_radius,0):y+self.fire_spread_radius+1]
-                space = np.where(surroundings==0)
-                susceptible_trees = [list(point) for point in zip(space[0]+max(x-self.fire_spread_radius,0),
-                                                                  space[1]+max(y-self.fire_spread_radius,0))]
-                for tree in susceptible_trees:
-                    if tree not in self.fires:
-                        self.fires.append([tree[0],tree[1],1])
-                        self.simulated_space[tree[0],tree[1]] = 10 + self.buckets_per_fire
-                print('+ Fire Spreads at',[x,y])
+            surroundings = self.simulated_space[max(x - self.fire_spread_radius, 0):x + self.fire_spread_radius + 1,
+                           max(y - self.fire_spread_radius, 0):y + self.fire_spread_radius + 1]
+            space = np.where(surroundings == 0)
+            #Get the tress that are next to the fire
+            susceptible_trees = [list(point) for point in zip(space[0] + max(x - self.fire_spread_radius, 0),
+                                                              space[1] + max(y - self.fire_spread_radius, 0))]
+            #Iterate through the trees not on fire
+            for tree in susceptible_trees:
+                if tree not in self.fires:
+                    chance = random.random()
+                    #Set the tree on fire if it goes below the rate
+                    if chance < self.fire_spread_rate:
+                        self.fires.append([tree[0], tree[1], 1])
+                        self.simulated_space[tree[0], tree[1]] = 10 + self.buckets_per_fire
+                        print('+  Fire Spread to ', [tree[0], tree[1]])
+
+
 
 
     def detect_fire(self,robot_id):
