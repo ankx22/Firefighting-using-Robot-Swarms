@@ -70,7 +70,7 @@ class Fire_Swarm:
             self.assign_goal(robot_id)
             conflicts = [self.robot_positions,self.next_steps]
             # print(conflicts)
-            path = a_star.main(self.forest,self.robot_positions[robot_id],self.goal_positions[robot_id],
+            path = a_star.main(self.forest,self.robot_positions[robot_id],self.goal_positions[robot_id], 
                             collisions = [self.robot_positions,self.next_steps])
             if path is None or len(path)<2:        # if path is not found, stay at current location
                 path = np.array([self.robot_positions[robot_id],self.robot_positions[robot_id]])
@@ -90,6 +90,7 @@ class Fire_Swarm:
         self.simulated_space[i,j] = 10 + self.buckets_per_fire
         self.fires.append([i,j,0])
 
+    
     def spread_fire(self):
         #Go through each of the fires
         for fire in self.fires:
@@ -109,8 +110,6 @@ class Fire_Swarm:
                         self.fires.append([tree[0], tree[1], 1])
                         self.simulated_space[tree[0], tree[1]] = 10 + self.buckets_per_fire
                         print('+  Fire Spread to ', [tree[0], tree[1]])
-
-
 
 
     def detect_fire(self,robot_id):
