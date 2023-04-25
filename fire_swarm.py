@@ -16,7 +16,7 @@ class Fire_Swarm:
     def __init__(self, N_robots, dimensions, desired_density):
 
         self.f = open("fire_spread_output.csv", "w")
-        self.f.write("Timestep,num_fires,num_ash,num_extinguished,perc_w_water\n")
+        self.f.write("Timestep,num_fires,perc_ash,num_extinguished,perc_w_water\n")
         self.num_extinguished = 0
 
         self.length,self.width = dimensions
@@ -29,8 +29,6 @@ class Fire_Swarm:
         self.simulated_space = self.space  # contains information about fires and reservoir
         self.forest = self.space.copy()
 
-        
-
         self.robot_positions = self.valid_points(self.number_of_robots)                # random test case
         self.goal_positions = self.valid_points(self.number_of_robots)
         self.water = [True for robot_id in range(self.number_of_robots)]
@@ -40,6 +38,7 @@ class Fire_Swarm:
         
         self.fires = []
         self.detected_fires = []
+        self.totalTrees = len(np.where(self.space == 0)[0])
 
         self.refill_radius = 3
         self.fire_detection_radius = 10
@@ -246,20 +245,18 @@ class Fire_Swarm:
 
     def updateStats(self):
         num_fires = len(self.fires)
-        num_ash = self.count_ash()
+        perc_ash = self.getAshPerc()
         perc_water = self.get_percentage_with_water()
-        self.f.write("%d,%d,%d,%d,%f\n" % (self.time_steps, num_fires, num_ash, self.num_extinguished, perc_water))
+        self.f.write("%d,%d,%f,%d,%f\n" % (self.time_steps, num_fires, perc_ash, self.num_extinguished, perc_water))
 
-    def count_ash(self):
-        unique, counts = np.unique(self.simulated_space, return_counts=True)
-        #Gets the number of tiles that are 3 since 3 = ash
-        arr = np.where(unique == 3)[0]
-        if arr:
-            index = arr[0]
-            return counts[index]
-        #If it doesn't exist then it is 0
-        else:
-            return 0
+    def getAshPerc(self):
+        #Ash tiles = 3
+        #Obstacle tiles = 0
+        num_ash = len(np.where(self.simulated_space == 3)[0])
+
+        return num_ash / self.totalTrees
+
+
 
     def get_percentage_with_water(self):
         return self.water.count(True) / len(self.water)
