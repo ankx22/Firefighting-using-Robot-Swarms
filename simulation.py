@@ -65,7 +65,7 @@ class Environment:
         pygame.display.update()
 
 
-FS = fire_swarm.Fire_Swarm(20,[50,50],10)
+FS = fire_swarm.Fire_Swarm(5,[50,50],10)
 env = Environment(FS.simulated_space)
 running = True
 
@@ -76,6 +76,7 @@ while running:
             running = False
     
     FS.step()
+    FS.updateStats()
 
     env.draw_env(FS)
     pygame.display.update()

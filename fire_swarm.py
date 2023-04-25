@@ -6,6 +6,7 @@ import a_star
 import obstacle_field_gen
 from matplotlib import pyplot as plt
 import random
+import csv
 
 def euclidian_dist(p1,p2):
     dist = ( (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 ) ** 0.5
@@ -13,7 +14,10 @@ def euclidian_dist(p1,p2):
 
 class Fire_Swarm:
     def __init__(self, N_robots, dimensions, desired_density):
-        
+
+        self.f = open("fire_spread_output.csv", "w")
+        self.f.write("Timestep,num_fires,num_ash\n")
+
         self.length,self.width = dimensions
         self.obstacle_density = desired_density
         self.number_of_robots = N_robots
@@ -223,8 +227,22 @@ class Fire_Swarm:
         self.generate_paths()
         self.move()
         self.activity()
-        
 
+    def updateStats(self):
+        num_fires = len(self.fires)
+        num_ash = self.count_ash()
+        self.f.write("%d,%d,%d\n" % (self.time_steps, num_fires, num_ash))
+
+    def count_ash(self):
+        unique, counts = np.unique(self.simulated_space, return_counts=True)
+        #Gets the number of tiles that are 3 since 3 = ash
+        arr = np.where(unique == 3)[0]
+        if arr:
+            index = arr[0]
+            return counts[index]
+        #If it doesn't exist then it is 0
+        else:
+            return 0
 
 FS = Fire_Swarm(4,[50,50],10)
 FS.step()
