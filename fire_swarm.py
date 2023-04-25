@@ -40,9 +40,7 @@ class Fire_Swarm:
         self.time_steps_before_ash = 60
         self.time_steps_before_spread = 20
         self.time_steps_for_new_fire = 10
-        self.time_steps_before_spread = 50
         self.fire_spread_rate = 0.01
-        self.time_steps_for_new_fire = 30
 
 
     def valid_points(self,n=1):
