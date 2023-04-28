@@ -154,7 +154,7 @@ cython_debug/
 
 # Project specific
 .png
-.csv
+*.csv
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
