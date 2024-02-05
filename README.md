@@ -14,7 +14,7 @@ For detailed description of the math see the report [here](Report.pdf).
 ## Plots and Animations
 Environment
 <p float="middle">
-<img src="outputs/Environment.png" width="750" height="450"/>
+<img src="outputs/Environment.PNG" width="750" height="450"/>
 <!-- <img src="outputs/p1b.png" width="750" height="450"/> -->
 </p>
 Fire Spread Based on Number of Robots
