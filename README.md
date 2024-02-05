@@ -14,27 +14,25 @@ For detailed description of the math see the report [here](Report.pdf).
 ## Plots and Animations
 Environment
 <p float="middle">
-<img src="outputs/Environment.PNG" width="750" height="450"/>
+<img src="outputs/Environment.PNG" width="450" height="450"/>
 <!-- <img src="outputs/p1b.png" width="750" height="450"/> -->
 </p>
+
+</p>
+### Graphs and outputs:
 Fire Spread Based on Number of Robots
 <p float="middle">
 <!-- <img src="outputs/fire_spread_output_5_0.01_3_2.png" width="750" height="350"/> -->
-<img src="outputs/fire_spread_output_5_0.01_3_2.png" width="750" height="350"/>
-<img src="outputs/fire_spread_output_10_0.01_1_2.png" width="750" height="350"/>
-<img src="outputs/fire_spread_output_10_0.01_3_1.png" width="750" height="350"/>
-<img src="outputs/fire_spread_output_10_0.01_3_2.png" width="750" height="350"/>
-</p>
-Graphs
+<img src="outputs/fire_spread.png" width="750" height="350"/>
 <p float="middle">
-  <img src="outputs/Active_Fires.png" width="750" height="350"/>
-  <img src="outputs/Ash_Ratio.png" width="750" height="350"/>
-  <img src="outputs/Fire_Extinguished.png" width="750" height="350"/>
+  <img src="outputs/Active_Fires.png" width="750" height="450"/>
+  <img src="outputs/Ash_Ratio.png" width="750" height="450"/>
+  <img src="outputs/Fire_Extinguished.png" width="750" height="450"/>
 </p>
 
 Swarm of Robots Extinguishing Fires
 <p float="middle">
-<img src="outputs/output.gif" width="750" height="450"/>
+<img src="outputs/output.gif" width="450" height="450"/>
 </p>
 
 Remaining plots and graphs are present in the report.
