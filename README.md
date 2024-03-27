@@ -1,4 +1,4 @@
-# Firefighting Using Robot Swarmss
+# Firefighting Using Robot Swarms
 This Project introduces an innovative swarm robotics algorithm tailored for forest fire containment. The project encapsulates a comprehensive study on optimizing swarm parameters to enhance firefighting strategies efficiently. By conducting simulations, our team has explored various configurations, focusing on robot count, forest density, and other pivotal factors. This endeavor aims to significantly improve firefighting tactics, ensuring better safety and effectiveness in combating forest fires.
 ## Steps to run the code
 - Install Numpy, Pygame, Matplotlib, and Pandas libraries before running the code.
